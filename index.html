@@ -1,0 +1,62 @@
+<input type="file" onchange="previewFile()"><br><br>
+源文件：<br>
+<img src=""><br><br>
+RGBA array<br>
+<textarea rows="30" cols="80", wrap="hard"></textarea><br><br>
+width: <input id="width" ><br>
+height: <input id="height"><br>
+<button onclick="transform()"> transform </button><br><br>
+
+<canvas id="myCanvas"></canvas><br><br>
+
+<script>
+function previewFile() {
+  var preview = document.querySelector('img');
+  var file    = document.querySelector('input[type=file]').files[0];
+  var textarea = document.querySelector('textarea');
+  const width = document.querySelector('#width');
+  const height = document.querySelector('#height');
+  var reader  = new FileReader();
+
+  if (file) {
+    reader.readAsDataURL(file);
+  }
+
+  reader.addEventListener("load", () => {
+    preview.src = reader.result;
+
+    var canvas = document.getElementById('myCanvas');
+    var ctx    = canvas.getContext('2d');
+    ctx.drawImage(preview,0,0);
+    var pixels = ctx.getImageData(0,0,canvas.width,canvas.height);
+    textarea.value = pixels.data;
+    width.value = pixels.width;
+    height.value = pixels.height;
+  });
+}
+
+function transform() {
+  var canvas = document.getElementById('myCanvas');
+  var ctx    = canvas.getContext('2d');
+  const rawPixelsData = document.querySelector('textarea').value;
+  const width = document.querySelector('#width').value;
+  const height = document.querySelector('#height').value;
+  
+  const pixelsData2 = rawPixelsData.split(' ').map(pixel => Number(pixel));
+
+  let pixelsData3 = [];
+  for(let i=0; i < pixelsData2.length; i++) {
+    pixelsData3.push(pixelsData2[i]);
+    pixelsData3.push(pixelsData2[i]);
+    pixelsData3.push(pixelsData2[i]);
+    pixelsData3.push(255);
+  }
+  console.log(pixelsData3)
+
+  // create the imageData object, you'll need the width and height of your image
+  var dataImage = ctx.createImageData(width, height);
+  dataImage.data.set(pixelsData3);
+  ctx.putImageData(dataImage, 0, 0);
+};
+
+</script>
